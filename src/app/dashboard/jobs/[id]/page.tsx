@@ -1,20 +1,18 @@
 import JobDetails from "@/app/components/JobDetails";
 import { JobApplication } from "@/app/lib/constants";
 import { notFound } from "next/navigation";
-import { Metadata, ResolvingMetadata } from "next";
+import { Metadata } from "next";
 import { Icons } from "@/app/components/icons";
 import BackButton from "@/app/components/BackButton";
 import Breadcrumbs from "@/app/components/Breadcrumbs";
 
 type Props = {
-  params: { id: string };
-  searchParams: Record<string, string | string[] | undefined>;
+  params: {
+    id: string;
+  };
 };
 
-export async function generateMetadata(
-  { params }: Props,
-  parent: ResolvingMetadata
-): Promise<Metadata> {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const job = await getJob(params.id);
 
   if (!job) {
@@ -23,27 +21,21 @@ export async function generateMetadata(
     };
   }
 
-  const previousImages = (await parent).openGraph?.images || [];
-
   return {
     title: `${job.position} at ${job.company} | Job Tracker`,
     description: `Details for ${job.position} position at ${job.company}`,
     openGraph: {
       title: `${job.position} at ${job.company}`,
       description: job.description.substring(0, 160) + "...",
-      images: [...previousImages],
     },
   };
 }
 
 async function getJob(id: string): Promise<JobApplication | null> {
   try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/jobs/${id}`,
-      {
-        next: { tags: [`job-${id}`] },
-      }
-    );
+    const res = await fetch(`http://localhost:3000/api/jobs/${id}`, {
+      next: { tags: [`job-${id}`] },
+    });
 
     if (!res.ok) {
       if (res.status === 404) return null;
@@ -118,7 +110,6 @@ export default async function JobPage({ params }: { params: { id: string } }) {
           {/* Timeline and notes section */}
           <div className="border-t border-gray-200 px-6 py-4 bg-gray-50">
             <h3 className="text-lg font-medium text-gray-900 flex items-center">
-              <Icons.clock className="h-5 w-5 text-gray-500 mr-2" />
               Application Timeline
             </h3>
             {/* Timeline component would go here */}
