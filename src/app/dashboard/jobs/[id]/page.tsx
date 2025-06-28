@@ -12,10 +12,7 @@ type Props = {
   };
 };
 
-export async function generateMetadata(
-  { params }: Props,
-  _parent?: ResolvingMetadata
-): Promise<Metadata> {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const job = await getJob(params.id);
 
   if (!job) {
