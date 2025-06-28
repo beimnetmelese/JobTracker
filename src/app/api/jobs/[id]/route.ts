@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { JobApplication } from "@/app/lib/constants";
 
-
 const mockJobs: JobApplication[] = [
   {
     id: '1',
@@ -19,7 +18,7 @@ const mockJobs: JobApplication[] = [
     id: '2',
     company: 'TechCorp',
     position: 'Frontend Developer',
-    url: 'https://example.com/job/1',
+    url: 'https://example.com/job/2',
     salary: '$90,000 - $120,000',
     status: 'applied',
     description: 'Looking for an experienced React developer...',
@@ -31,7 +30,7 @@ const mockJobs: JobApplication[] = [
     id: '3',
     company: 'TechCorp',
     position: 'Frontend Developer',
-    url: 'https://example.com/job/1',
+    url: 'https://example.com/job/3',
     salary: '$90,000 - $120,000',
     status: 'offer',
     description: 'Looking for an experienced React developer...',
@@ -42,10 +41,11 @@ const mockJobs: JobApplication[] = [
 ];
 
 export async function GET(
-  _request: Request,
-  { params }: { params: { id: string } }
+  req: Request,
+  context: { params: { id: string } }
 ) {
-  const job = mockJobs.find((job) => job.id === params.id);
+  const { id } = context.params;
+  const job = mockJobs.find((job) => job.id === id);
 
   if (!job) {
     return NextResponse.json({ message: "Job not found" }, { status: 404 });
