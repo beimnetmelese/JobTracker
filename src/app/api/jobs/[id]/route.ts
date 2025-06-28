@@ -41,15 +41,13 @@ const mockJobs: JobApplication[] = [
 ];
 
 export async function GET(
-  req: Request,
-  context: { params: { id: string } }
+  _req: Request,
+  { params }: { params: { id: string } }
 ) {
-  const { id } = context.params;
-  const job = mockJobs.find((job) => job.id === id);
+  const job = mockJobs.find((job) => job.id === params.id);
 
   if (!job) {
     return NextResponse.json({ message: "Job not found" }, { status: 404 });
   }
 
-  return NextResponse.json(job);
-}
+  return NextResponse.json(job); }
