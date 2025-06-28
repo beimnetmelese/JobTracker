@@ -1,7 +1,7 @@
 import JobDetails from "@/app/components/JobDetails";
 import { JobApplication } from "@/app/lib/constants";
 import { notFound } from "next/navigation";
-import { Metadata, ResolvingMetadata } from "next";
+import { Metadata } from "next";
 import { Icons } from "@/app/components/icons";
 import BackButton from "@/app/components/BackButton";
 import Breadcrumbs from "@/app/components/Breadcrumbs";
