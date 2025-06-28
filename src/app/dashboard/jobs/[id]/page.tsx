@@ -1,16 +1,21 @@
 import JobDetails from "@/app/components/JobDetails";
 import { JobApplication } from "@/app/lib/constants";
 import { notFound } from "next/navigation";
-import { Metadata } from "next";
+import { Metadata, ResolvingMetadata } from "next";
 import { Icons } from "@/app/components/icons";
 import BackButton from "@/app/components/BackButton";
 import Breadcrumbs from "@/app/components/Breadcrumbs";
 
 type Props = {
-  params: { id: string };
+  params: {
+    id: string;
+  };
 };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata(
+  { params }: Props,
+  _parent?: ResolvingMetadata
+): Promise<Metadata> {
   const job = await getJob(params.id);
 
   if (!job) {
