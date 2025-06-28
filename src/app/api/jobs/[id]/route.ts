@@ -41,7 +41,7 @@ const mockJobs: JobApplication[] = [
   },
 ];
 
-export async function GET(req: Request, { params }: { params: Record<string, string> }) {
+export async function GET(req: Request, { params }: { params: { id: string } } ) {
   const id = params.id;
   const job = mockJobs.find((job) => job.id === id);
 
