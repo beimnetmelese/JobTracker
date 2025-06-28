@@ -1,134 +1,166 @@
-import Link from "next/link";
-import { Button } from "./components/button";
+"use client"; // Converted to client component for interactivity
+
+import { useEffect, useState } from "react";
+
+import { toast } from "sonner";
+import AddJobModal from "./components/AddJobForm";
+import EmptyState from "./components/EmptyState";
+import FilterBar from "./components/FilterBar";
 import { Icons } from "./components/icons";
+import JobCard from "./components/JobCard";
+import StatsChart from "./components/StatsChart";
+import { JobApplication, JobStatus } from "./lib/constants";
 
-export default function HomePage() {
+export default function Dashboard() {
+  const [jobs, setJobs] = useState<JobApplication[]>([]);
+  const [filteredJobs, setFilteredJobs] = useState<JobApplication[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [filters, setFilters] = useState<{
+    status: JobStatus | "all";
+    search: string;
+  }>({ status: "all", search: "" });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const res = await fetch("/api/jobs");
+        const data = await res.json();
+        setJobs(data);
+        setFilteredJobs(data);
+      } catch (error) {
+        toast.error("Failed to load jobs");
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    let result = [...jobs];
+
+    // Status filter
+    if (filters.status !== "all") {
+      result = result.filter((job) => job.status === filters.status);
+    }
+
+    // Search filter
+    if (filters.search) {
+      const searchTerm = filters.search.toLowerCase();
+      result = result.filter(
+        (job) =>
+          job.company.toLowerCase().includes(searchTerm) ||
+          job.position.toLowerCase().includes(searchTerm) ||
+          job.description.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    setFilteredJobs(result);
+  }, [filters, jobs]);
+
+  const handleAddJob = async (newJob: Omit<JobApplication, "id">) => {
+    try {
+      const res = await fetch("/api/jobs", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newJob),
+      });
+
+      const createdJob = await res.json();
+      setJobs((prev) => [...prev, createdJob]);
+      setIsModalOpen(false);
+      toast.success("Job added successfully!");
+    } catch (error) {
+      toast.error("Failed to add job");
+      console.error(error);
+    }
+  };
+
+  const handleDeleteJob = async (id: string) => {
+    try {
+      await fetch(`/api/jobs/${id}`, {
+        method: "DELETE",
+      });
+
+      setJobs((prev) => prev.filter((job) => job.id !== id));
+      toast.success("Job deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete job");
+      console.error(error);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Icons.spinner className="h-12 w-12 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 text-gray-800">
-      {/* Hero Section */}
-      <section className="py-24 px-6 sm:px-8 lg:px-12 max-w-7xl mx-auto text-center">
-        <h1 className="text-5xl md:text-6xl font-extrabold leading-tight mb-6">
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-            Smarter Job Hunting
-          </span>
-        </h1>
-        <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto mb-10">
-          Track applications, analyze job postings with AI, and land your dream
-          role faster.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <Button asChild size="lg" className="shadow-lg">
-            <Link href="/dashboard">
-              <Icons.rocket className="mr-2 h-5 w-5" />
-              Get Started
-            </Link>
-          </Button>
-          <Button asChild variant="outline" size="lg">
-            <Link href="#features">
-              <Icons.info className="mr-2 h-5 w-5" />
-              Learn More
-            </Link>
-          </Button>
-        </div>
-
-        {/* Animated App Preview */}
-        <div className="mt-20 relative shadow-xl rounded-2xl overflow-hidden border border-gray-200 bg-white">
-          <img
-            src="/app-preview.png"
-            alt="App Dashboard Preview"
-            className="w-full h-auto animate-fade-in"
-          />
-          <div className="absolute top-0 left-0 bg-gradient-to-br from-white/60 to-transparent w-full h-full"></div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-16">
-            Powerful Features
-          </h2>
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-10">
-            {[
-              {
-                icon: <Icons.ai className="h-10 w-10 text-blue-600" />,
-                title: "AI Job Analysis",
-                description:
-                  "Get instant insights on skills needed and potential red flags in job descriptions.",
-              },
-              {
-                icon: <Icons.track className="h-10 w-10 text-purple-600" />,
-                title: "Application Tracking",
-                description:
-                  "Visual dashboard to track all your applications in one place.",
-              },
-              {
-                icon: <Icons.insights className="h-10 w-10 text-indigo-600" />,
-                title: "Smart Analytics",
-                description:
-                  "Stats on your application success rates and response times.",
-              },
-            ].map((feature, index) => (
-              <div
-                key={index}
-                className="bg-gray-50 p-8 rounded-2xl border hover:shadow-xl transition-all"
-              >
-                <div className="flex justify-center mb-6">{feature.icon}</div>
-                <h3 className="text-xl font-semibold text-center mb-2">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-600 text-center">
-                  {feature.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className="py-24 bg-gray-100">
-        <div className="max-w-6xl mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold mb-12">What Our Users Say</h2>
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8">
-            {[
-              "Helped me land my dream job in just 3 weeks!",
-              "The AI analysis saved me hours.",
-              "I feel more confident applying now.",
-            ].map((quote, i) => (
-              <blockquote
-                key={i}
-                className="bg-white shadow p-6 rounded-xl text-gray-700"
-              >
-                “{quote}”
-              </blockquote>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Call-to-Action Section */}
-      <section className="py-24 bg-gradient-to-r from-blue-600 to-indigo-700 text-white text-center">
-        <div className="max-w-4xl mx-auto px-6">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-6">
-            Ready to transform your job search?
-          </h2>
-          <p className="text-xl text-blue-100 mb-10">
-            Join thousands of users who found their dream jobs faster with our
-            tools.
-          </p>
-          <Button
-            asChild
-            size="lg"
-            className="bg-white text-blue-600 hover:bg-gray-100 shadow-lg"
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
+          <h1 className="text-2xl font-bold text-gray-900">
+            Job Application Tracker
+          </h1>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
-            <Link href="/dashboard">
-              Start Tracking Now - It's Free
-              <Icons.arrowRight className="ml-2 h-5 w-5" />
-            </Link>
-          </Button>
+            <Icons.plus className="mr-2 h-4 w-4" />
+            Add Job
+          </button>
         </div>
-      </section>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        {/* Stats and Filters */}
+        <div className="mb-12 space-y-6">
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl text-black font-semibold mb-4">
+              Your Statistics
+            </h2>
+            <StatsChart jobs={jobs} />
+          </div>
+
+          <FilterBar
+            filters={filters}
+            onFilterChange={setFilters}
+            jobCount={filteredJobs.length}
+          />
+        </div>
+
+        {/* Jobs List */}
+        {filteredJobs.length > 0 ? (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {filteredJobs.map((job) => (
+              <JobCard key={job.id} job={job} onDelete={handleDeleteJob} />
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            onAddJob={() => setIsModalOpen(true)}
+            hasFilters={filters.status !== "all" || !!filters.search}
+            onClearFilters={() => setFilters({ status: "all", search: "" })}
+          />
+        )}
+      </main>
+
+      {/* Add Job Modal */}
+      <AddJobModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleAddJob}
+      />
     </div>
   );
 }
