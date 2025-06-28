@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
+  "dev": "next dev",
+  "build": "next build",
+  "start": "next start",
+  "netlify:build": "netlify build"
+},
   "dependencies": {
     "@netlify/next": "^1.4.9",
     "@radix-ui/react-slot": "^1.2.3",
