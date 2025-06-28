@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 const mockJobs = [
   {
@@ -39,14 +39,11 @@ const mockJobs = [
   },
 ];
 
-type Context = {
-  params: {
-    id: string;
-  };
-};
 
-export async function GET(req: Request, context: Context) {
-  const { id } = context.params;
+
+export async function GET(req: NextRequest) {
+  const url = new URL(req.url);
+  const id = url.pathname.split("/").pop(); // Extract ID from URL path
 
   const job = mockJobs.find((job) => job.id === id);
 
