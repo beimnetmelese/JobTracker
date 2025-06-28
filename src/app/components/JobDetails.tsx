@@ -10,13 +10,6 @@ interface JobDetailsProps {
   job: JobApplication;
 }
 
-const statusMap = {
-  applied: { label: "Applied", color: "bg-blue-100 text-blue-800" },
-  interview: { label: "Interview", color: "bg-purple-100 text-purple-800" },
-  rejected: { label: "Rejected", color: "bg-red-100 text-red-800" },
-  offer: { label: "Offer", color: "bg-green-100 text-green-800" },
-};
-
 export default function JobDetails({ job }: JobDetailsProps) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);

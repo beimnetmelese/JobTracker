@@ -1,7 +1,14 @@
 "use client";
 
 import { Pie } from "react-chartjs-2";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend,
+  TooltipItem,
+  ChartOptions,
+} from "chart.js";
 import { JobApplication } from "../lib/constants";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -42,18 +49,18 @@ export default function StatsChart({ jobs }: { jobs: JobApplication[] }) {
     ],
   };
 
-  const options = {
+  const options: ChartOptions<"pie"> = {
     plugins: {
       legend: {
-        position: "bottom" as const,
+        position: "bottom",
       },
       tooltip: {
         callbacks: {
-          label: (context: any) => {
+          label: (context: TooltipItem<"pie">) => {
             const label = context.label || "";
-            const value = context.raw || 0;
+            const value = (context.raw ?? 0) as number;
             const total = context.dataset.data.reduce(
-              (a: number, b: number) => a + b,
+              (a, b) => a + (typeof b === "number" ? b : 0),
               0
             );
             const percentage = Math.round((value / total) * 100);
@@ -63,6 +70,7 @@ export default function StatsChart({ jobs }: { jobs: JobApplication[] }) {
       },
     },
     maintainAspectRatio: false,
+    responsive: true,
   };
 
   return (

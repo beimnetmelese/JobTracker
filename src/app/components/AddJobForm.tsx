@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { JobStatus, JobApplication } from "../lib/constants";
 import { Icons } from "./icons";
 import * as yup from "yup";

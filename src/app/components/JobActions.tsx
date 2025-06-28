@@ -23,6 +23,7 @@ export default function JobActions({ jobId }: { jobId: string }) {
       router.refresh();
     } catch (error) {
       toast.error("Failed to delete job");
+      console.log(error);
     }
   };
 
