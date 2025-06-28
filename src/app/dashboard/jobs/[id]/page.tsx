@@ -1,35 +1,9 @@
 import JobDetails from "@/app/components/JobDetails";
 import { JobApplication } from "@/app/lib/constants";
 import { notFound } from "next/navigation";
-import { Metadata } from "next";
 import { Icons } from "@/app/components/icons";
 import BackButton from "@/app/components/BackButton";
 import Breadcrumbs from "@/app/components/Breadcrumbs";
-
-type Props = {
-  params: {
-    id: string;
-  };
-};
-
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const job = await getJob(params.id);
-
-  if (!job) {
-    return {
-      title: "Job Not Found | Job Tracker",
-    };
-  }
-
-  return {
-    title: `${job.position} at ${job.company} | Job Tracker`,
-    description: `Details for ${job.position} position at ${job.company}`,
-    openGraph: {
-      title: `${job.position} at ${job.company}`,
-      description: job.description.substring(0, 160) + "...",
-    },
-  };
-}
 
 async function getJob(id: string): Promise<JobApplication | null> {
   try {
